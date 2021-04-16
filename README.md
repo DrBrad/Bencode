@@ -4,6 +4,28 @@ Bencode
 This is an implementation of Bencode for Java. Bencode is used for DHTs, Torrents, and Google DataServers. Its a lightweight fast data serialization.
 [Wikipedia](https://en.wikipedia.org/wiki/Bencode)
 
+Benchmarks
+-----
+Here are some examples of this library compared to other major data serialization methods.
+
+Serialization / Encoding
+| Method  | Time in Mills |
+| ------------- | ------------- |
+| Bencode  | 57  |
+| JSON  | 230  |
+
+Parsing
+| Method  | Time in Mills |
+| ------------- | ------------- |
+| Bencode  | 83  |
+| JSON  | 281  |
+
+Byte Size when encoded
+| Method  | Bytes |
+| ------------- | ------------- |
+| Bencode  | 10134606  |
+| JSON  | 51538417  |
+
 Usage
 -----
 Here are some examples of how to use the Bencode library.
