@@ -46,7 +46,7 @@ BencodeArray bar = new BencodeArray();
 
 **Bencode Object | Map**
 ```Java
-//FROM Map
+//FROM MAP
 HashMap<String, String> l = new HashMap<>();
 BencodeObject bob = new BencodeObject(l);
 
