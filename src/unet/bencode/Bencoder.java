@@ -1,8 +1,8 @@
 package unet.bencode;
 
-import java.nio.ByteBuffer;
-import java.text.NumberFormat;
-import java.text.ParseException;
+import unet.bencode.variables.*;
+import unet.bencode.variables.BencodeVariable;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,158 +10,153 @@ import java.util.Map;
 
 public class Bencoder {
 
-    private ByteBuffer buffer;
+    private byte[] buf;
+    private int pos = 0;
 
-    public byte[] encode(List<?> l){
-        buffer = ByteBuffer.allocate(65507);
+    public byte[] encode(BencodeArray l){
+        buf = new byte[l.byteSize()];
         put(l);
-        byte[] buf = new byte[buffer.position()];
-        buffer.rewind();
-        buffer.get(buf);
         return buf;
     }
 
-    public byte[] encode(Map<?, ?> m){
-        buffer = ByteBuffer.allocate(65507);
+    public byte[] encode(BencodeObject m){
+        buf = new byte[m.byteSize()];
         put(m);
-        byte[] buf = new byte[buffer.position()];
-        buffer.rewind();
-        buffer.get(buf);
         return buf;
     }
 
-    public List<?> decodeArray(ByteBuffer buffer)throws ParseException {
-        this.buffer = buffer;
-        return getList(buffer.get());
+    public List<BencodeVariable> decodeArray(byte[] buf){
+        this.buf = buf;
+        return decodeArray();
     }
 
-    public Map<?, ?> decodeObject(ByteBuffer buffer)throws ParseException {
-        this.buffer = buffer;
-        return getMap(buffer.get());
+    public Map<BencodeBytes, BencodeVariable> decodeObject(byte[] buf){
+        this.buf = buf;
+        return decodeObject();
     }
 
-    private void put(Object o){
-        if(o instanceof String){
-            put((String) o);
-        }else if(o instanceof byte[]){
-            put((byte[]) o);
-        }else if(o instanceof Number){
-            put((Number) o);
-        }else if(o instanceof List<?>){
-            put((List<?>) o);
-        }else if(o instanceof Map<?, ?>){
-            put((Map<?, ?>) o);
+    private void put(BencodeVariable v){
+        if(v instanceof BencodeBytes){
+            put((BencodeBytes) v);
+        }else if(v instanceof BencodeNumber){
+            put((BencodeNumber) v);
+        }else if(v instanceof BencodeArray){
+            put((BencodeArray) v);
+        }else if(v instanceof BencodeObject){
+            put((BencodeObject) v);
         }
     }
 
-    private void put(String s){
-        put(s.getBytes());
+    private void put(BencodeBytes v){
+        byte[] b = v.getBytes();
+        System.arraycopy(b, 0, buf, pos, b.length);
+        pos += b.length;
     }
 
-    private void put(byte[] b){
-        buffer.put(Integer.toString(b.length).getBytes());
-        buffer.put(":".getBytes());
-        buffer.put(b);
+    private void put(BencodeNumber n){
+        byte[] b = n.getBytes();
+        System.arraycopy(b, 0, buf, pos, b.length);
+        pos += b.length;
     }
 
-    private void put(Number n){
-        buffer.put("i".getBytes());
-        buffer.put(n.toString().getBytes());
-        buffer.put("e".getBytes());
-    }
+    private void put(BencodeArray l){
+        buf[pos] = 'l';
+        pos++;
 
-    private void put(List<?> l){
-        buffer.put("l".getBytes());
-        for(Object o : l){
-            put(o);
+        for(int i = 0; i < l.size(); i++){
+            put(l.valueOf(i));
         }
-        buffer.put("e".getBytes());
+        buf[pos] = 'e';
     }
 
-    private void put(Map<?, ?> m){
-        buffer.put("d".getBytes());
-        for(Object o : m.keySet()){
-            put(o);
-            put(m.get(o));
+    private void put(BencodeObject m){
+        buf[pos] = 'd';
+        pos++;
+
+        for(BencodeBytes k : m.keySet()){
+            put(k);
+            put(m.valueOf(k));
+            pos++;
         }
-        buffer.put("e".getBytes());
+        buf[pos] = 'e';
     }
 
-    private Object get(byte l)throws ParseException {
-        switch(l){
-            case 'i':
-                return getNumber(l);
-            case 'l':
-                return getList(l);
-            case 'd':
-                return getMap(l);
-            default:
-                if(l >= '0' && l <= '9'){
-                    return getBytes(l);
-                }
-        }
-        throw new ParseException("Failed to determine type", 0);
-    }
+    private List<BencodeVariable> decodeArray(){
+        if(buf[pos] == 'l'){
+            ArrayList<BencodeVariable> a = new ArrayList<>();
+            pos++;
 
-    private Number getNumber(byte l)throws ParseException {
-        if(l == 'i'){
-            StringBuilder n = new StringBuilder();
-
-            byte b;
-            while((b = buffer.get()) != 'e'){
-                n.append((char) b);
+            while(buf[pos] != 'e'){
+                a.add(get());
             }
-
-            return NumberFormat.getInstance().parse(n.toString());
-        }
-        throw new ParseException("Failed to parse number", 0);
-    }
-
-    private List<?> getList(byte l)throws ParseException {
-        if(l == 'l'){
-            ArrayList<Object> a = new ArrayList<>();
-
-            byte b;
-            while((b = buffer.get()) != 'e'){
-                a.add(get(b));
-            }
-
             return a;
         }
-        throw new ParseException("Failed to parse list", 0);
+        return null;
     }
 
-    private Map<String, ?> getMap(byte l)throws ParseException {
-        if(l == 'd'){
-            HashMap<String, Object> m = new HashMap<>();
+    private Map<BencodeBytes, BencodeVariable> decodeObject(){
+        if(buf[pos] == 'd'){
+            HashMap<BencodeBytes, BencodeVariable> m = new HashMap<>();
+            pos++;
 
-            byte b;
-            while((b = buffer.get()) != 'e'){
-                m.put(new String(getBytes(b)), get(buffer.get()));
+            while(buf[pos] != 'e'){
+                m.put(getBytes(), get());
             }
-
             return m;
         }
-        buffer.position(buffer.position()-1);
-        throw new ParseException("Failed to parse map", 0);
+        return null;
     }
 
-    private byte[] getBytes(byte l)throws ParseException {
-        if(l >= '0' && l <= '9'){
-            StringBuilder n = new StringBuilder();
-            n.append(l);
-
-            byte b;
-            while((b = buffer.get()) != ':'){
-                n.append((char) b);
-            }
-
-            byte[] buf = new byte[Integer.parseInt(n.toString())];
-            buffer.get(buf);
-
-            return buf;
+    private BencodeVariable get(){
+        switch(buf[pos]){
+            case 'i':
+                return getNumber();
+            case 'l':
+                return getList();
+            case 'd':
+                return getMap();
+            default:
+                if(buf[pos] >= '0' && buf[pos] <= '9'){
+                    return getBytes();
+                }
         }
-        buffer.position(buffer.position()-1);
-        throw new ParseException("Failed to parse bytes", 0);
+        return null;
+    }
+
+    private BencodeNumber getNumber(){
+        char[] c = new char[32];
+        pos++;
+        int s = pos;
+        while(buf[pos] != 'e'){
+            c[pos-s] = (char) buf[pos];
+            pos++;
+        }
+
+        pos++;
+        return new BencodeNumber(new String(c, 0, pos-s-1));
+    }
+
+    private BencodeBytes getBytes(){
+        char[] c = new char[8];
+        int s = pos;
+        while(buf[pos] != ':'){
+            c[pos-s] = (char) buf[pos];
+            pos++;
+        }
+
+        int t = Integer.parseInt(new String(c, 0, pos-s));
+        byte[] b = new byte[t];
+        System.arraycopy(buf, pos+1, b, 0, b.length);
+        pos += t+1;
+
+        return new BencodeBytes(b);
+    }
+
+    private BencodeArray getList(){
+        return new BencodeArray(decodeArray());
+    }
+
+    private BencodeObject getMap(){
+        return new BencodeObject(decodeObject());
     }
 }
