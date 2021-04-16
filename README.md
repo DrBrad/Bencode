@@ -51,7 +51,7 @@ HashMap<String, String> l = new HashMap<>();
 BencodeObject bob = new BencodeObject(l);
 
 //FROM BYTES
-byte[] b; //LIST OF BYTES
+byte[] b; //ARRAY OF BYTES
 BencodeObject bob = new BencodeObject(b);
 
 //CREATE BENCODE
