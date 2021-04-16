@@ -37,7 +37,7 @@ ArrayList<String> l = new ArrayList<>();
 BencodeArray bar = new BencodeArray(l);
 
 //FROM BYTES
-byte[] b; //LIST OF BYTES
+byte[] b; //ARRAY OF BYTES
 BencodeArray bar = new BencodeArray(b);
 
 //CREATE BENCODE
