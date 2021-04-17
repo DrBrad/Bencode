@@ -134,11 +134,11 @@ public class BencodeObject implements BencodeVariable {
         return (byte[]) m.get(new BencodeBytes(k.getBytes())).getObject();
     }
 
-    public BencodeArray getBencodeList(String k){
+    public BencodeArray getBencodeArray(String k){
         return (BencodeArray) m.get(new BencodeBytes(k.getBytes()));
     }
 
-    public BencodeObject getBencodeMap(String k){
+    public BencodeObject getBencodeObject(String k){
         return (BencodeObject) m.get(new BencodeBytes(k.getBytes()));
     }
 

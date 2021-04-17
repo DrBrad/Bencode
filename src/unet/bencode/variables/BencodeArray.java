@@ -108,11 +108,11 @@ public class BencodeArray implements BencodeVariable {
         return (byte[]) l.get(i).getObject();
     }
 
-    public BencodeArray getBencodeList(int i){
+    public BencodeArray getBencodeArray(int i){
         return (BencodeArray) l.get(i);
     }
 
-    public BencodeObject getBencodeMap(int i){
+    public BencodeObject getBencodeObject(int i){
         return (BencodeObject) l.get(i);
     }
 
