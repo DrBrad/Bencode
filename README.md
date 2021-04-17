@@ -4,6 +4,28 @@ Bencode
 This is an implementation of Bencode for Java. Bencode is used for DHTs, Torrents, and Google DataServers. Its a lightweight fast data serialization.
 [Wikipedia](https://en.wikipedia.org/wiki/Bencode)
 
+Benchmarks
+-----
+Here are some examples of this library compared to other major data serialization methods.
+
+Serialization / Encoding
+| Method  | Time in Mills |
+| ------------- | ------------- |
+| Bencode  | 57  |
+| JSON  | 230  |
+
+Parsing
+| Method  | Time in Mills |
+| ------------- | ------------- |
+| Bencode  | 83  |
+| JSON  | 281  |
+
+Byte Size when encoded
+| Method  | Bytes |
+| ------------- | ------------- |
+| Bencode  | 10134606  |
+| JSON  | 51538417  |
+
 Usage
 -----
 Here are some examples of how to use the Bencode library.
@@ -15,7 +37,7 @@ ArrayList<String> l = new ArrayList<>();
 BencodeArray bar = new BencodeArray(l);
 
 //FROM BYTES
-byte[] b; //LIST OF BYTES
+byte[] b; //ARRAY OF BYTES
 BencodeArray bar = new BencodeArray(b);
 
 //CREATE BENCODE
@@ -24,12 +46,12 @@ BencodeArray bar = new BencodeArray();
 
 **Bencode Object | Map**
 ```Java
-//FROM Map
+//FROM MAP
 HashMap<String, String> l = new HashMap<>();
 BencodeObject bob = new BencodeObject(l);
 
 //FROM BYTES
-byte[] b; //LIST OF BYTES
+byte[] b; //ARRAY OF BYTES
 BencodeObject bob = new BencodeObject(b);
 
 //CREATE BENCODE
