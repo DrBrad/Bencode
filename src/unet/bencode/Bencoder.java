@@ -1,7 +1,6 @@
 package unet.bencode;
 
 import unet.bencode.variables.*;
-import unet.bencode.variables.BencodeVariable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,13 +24,15 @@ public class Bencoder {
         return buf;
     }
 
-    public List<BencodeVariable> decodeArray(byte[] buf){
+    public List<BencodeVariable> decodeArray(byte[] buf, int off){
         this.buf = buf;
+        pos = off;
         return decodeArray();
     }
 
-    public Map<BencodeBytes, BencodeVariable> decodeObject(byte[] buf){
+    public Map<BencodeBytes, BencodeVariable> decodeObject(byte[] buf, int off){
         this.buf = buf;
+        pos = off;
         return decodeObject();
     }
 

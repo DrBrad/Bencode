@@ -2,6 +2,7 @@ package unet.bencode.variables;
 
 import unet.bencode.Bencoder;
 
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.*;
 
@@ -42,7 +43,11 @@ public class BencodeObject implements BencodeVariable {
     }
 
     public BencodeObject(byte[] buf){
-        this(new Bencoder().decodeObject(buf));
+        this(new Bencoder().decodeObject(buf, 0));
+    }
+
+    public BencodeObject(byte[] buf, int off){
+        this(new Bencoder().decodeObject(buf, off));
     }
 
     private void put(BencodeBytes k, BencodeVariable v){
@@ -174,6 +179,13 @@ public class BencodeObject implements BencodeVariable {
         return m.containsValue(o);
     }
 
+    public void remove(String k){
+        BencodeBytes b = new BencodeBytes(k.getBytes());
+        if(m.containsKey(b)){
+            m.remove(b);
+        }
+    }
+
     public Set<BencodeBytes> keySet(){
         return m.keySet();
     }
@@ -203,6 +215,32 @@ public class BencodeObject implements BencodeVariable {
     @Override
     public int hashCode(){
         return 3;
+    }
+
+    public String prettify(){
+        StringBuilder b = new StringBuilder("{\r\n");
+
+        for(BencodeBytes o : m.keySet()){
+            try{
+                String k = new String(o.getObject());
+
+                if(m.get(o) instanceof BencodeNumber){
+                    b.append("\t\033[0;31m"+k+"\033[0m:\033[0;33m"+((BencodeNumber) m.get(o)).getObject()+"\033[0m\r\n");
+
+                }else if(m.get(o) instanceof BencodeBytes){
+                    b.append("\t\033[0;31m"+k+"\033[0m:\033[0;34m"+new String(((BencodeBytes) m.get(o)).getObject(), StandardCharsets.UTF_8)+"\033[0m\r\n");
+
+                }else if(m.get(o) instanceof BencodeArray){
+                    b.append("\t\033[0;32m"+k+"\033[0m:"+((BencodeArray) m.get(o)).prettify().replaceAll("\\r?\\n", "\r\n\t")+"\r\n");
+
+                }else if(m.get(o) instanceof BencodeObject){
+                    b.append("\t\033[0;32m"+k+"\033[0m:"+((BencodeObject) m.get(o)).prettify().replaceAll("\\r?\\n", "\r\n\t")+"\r\n");
+                }
+            }catch(ParseException e){
+            }
+        }
+
+        return b+"}";
     }
 
     public byte[] encode(){
