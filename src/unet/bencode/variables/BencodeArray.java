@@ -129,7 +129,7 @@ public class BencodeArray implements BencodeVariable {
     }
 
     public boolean contains(List<?> l){
-        return l.contains(new BencodeArray(l));
+        return this.l.contains(new BencodeArray(l));
     }
 
     public boolean contains(Map<?, ?> m){

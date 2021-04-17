@@ -67,6 +67,7 @@ public class Bencoder {
             put(l.valueOf(i));
         }
         buf[pos] = 'e';
+        pos++;
     }
 
     private void put(BencodeObject m){
@@ -76,9 +77,9 @@ public class Bencoder {
         for(BencodeBytes k : m.keySet()){
             put(k);
             put(m.valueOf(k));
-            pos++;
         }
         buf[pos] = 'e';
+        pos++;
     }
 
     private List<BencodeVariable> decodeArray(){
@@ -89,6 +90,7 @@ public class Bencoder {
             while(buf[pos] != 'e'){
                 a.add(get());
             }
+            pos++;
             return a;
         }
         return null;
@@ -102,6 +104,7 @@ public class Bencoder {
             while(buf[pos] != 'e'){
                 m.put(getBytes(), get());
             }
+            pos++;
             return m;
         }
         return null;

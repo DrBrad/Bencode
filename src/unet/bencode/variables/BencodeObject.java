@@ -146,6 +146,34 @@ public class BencodeObject implements BencodeVariable {
         return m.containsKey(new BencodeBytes(s.getBytes()));
     }
 
+    public boolean containsValue(Number n){
+        return m.containsValue(new BencodeNumber(n.toString()));
+    }
+
+    public boolean containsValue(String s){
+        return m.containsValue(new BencodeBytes(s.getBytes()));
+    }
+
+    public boolean containsValue(byte[] b){
+        return m.containsValue(new BencodeBytes(b));
+    }
+
+    public boolean containsValue(List<?> l){
+        return m.containsValue(new BencodeArray(l));
+    }
+
+    public boolean containsValue(Map<?, ?> m){
+        return this.m.containsValue(new BencodeObject(m));
+    }
+
+    public boolean containsValue(BencodeArray a){
+        return m.containsValue(a);
+    }
+
+    public boolean containsValue(BencodeObject o){
+        return m.containsValue(o);
+    }
+
     public Set<BencodeBytes> keySet(){
         return m.keySet();
     }
