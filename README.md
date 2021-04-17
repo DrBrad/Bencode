@@ -26,6 +26,10 @@ Byte Size when encoded
 | Bencode  | 10134606  |
 | JSON  | 51538417  |
 
+Library
+-----
+The JAR for the library can be found here: [Bencode JAR](https://github.com/DrBrad/Bencode/blob/main/out/artifacts/Bencode_jar/Bencode.jar?raw=true)
+
 Usage
 -----
 Here are some examples of how to use the Bencode library.
