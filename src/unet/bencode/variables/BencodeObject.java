@@ -2,6 +2,7 @@ package unet.bencode.variables;
 
 import unet.bencode.Bencoder;
 
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.*;
@@ -228,13 +229,18 @@ public class BencodeObject implements BencodeVariable {
                     b.append("\t\033[0;31m"+k+"\033[0m:\033[0;33m"+((BencodeNumber) m.get(o)).getObject()+"\033[0m\r\n");
 
                 }else if(m.get(o) instanceof BencodeBytes){
-                    b.append("\t\033[0;31m"+k+"\033[0m:\033[0;34m"+new String(((BencodeBytes) m.get(o)).getObject(), StandardCharsets.UTF_8)+"\033[0m\r\n");
+                    if(Charset.forName("US-ASCII").newEncoder().canEncode(new String(((BencodeBytes) m.get(o)).getObject()))){
+                        b.append("\t\033[0;31m"+k+"\033[0m:\033[0;34m"+new String(((BencodeBytes) m.get(o)).getObject(), StandardCharsets.UTF_8)+"\033[0m\r\n");
+
+                    }else{
+                        b.append("\t\033[0;31m"+k+"\033[0m:\033[0;34m BASE64 { "+Base64.getEncoder().encodeToString(((BencodeBytes) m.get(o)).getObject())+" }\033[0m\r\n");
+                    }
 
                 }else if(m.get(o) instanceof BencodeArray){
                     b.append("\t\033[0;32m"+k+"\033[0m:"+((BencodeArray) m.get(o)).prettify().replaceAll("\\r?\\n", "\r\n\t")+"\r\n");
 
-                }else if(m.get(o) instanceof BencodeObject){
-                    b.append("\t\033[0;32m"+k+"\033[0m:"+((BencodeObject) m.get(o)).prettify().replaceAll("\\r?\\n", "\r\n\t")+"\r\n");
+                }else if(m.get(o) instanceof unet.bencode.variables.BencodeObject){
+                    b.append("\t\033[0;32m"+k+"\033[0m:"+((unet.bencode.variables.BencodeObject) m.get(o)).prettify().replaceAll("\\r?\\n", "\r\n\t")+"\r\n");
                 }
             }catch(ParseException e){
             }
