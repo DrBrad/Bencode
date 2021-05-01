@@ -80,7 +80,7 @@ bar.encode();
 
 **Readable String**
 ```Java
-System.out.println(bar.prettify());
+System.out.println(bar.toString());
 ```
 
 License
