@@ -218,7 +218,8 @@ public class BencodeObject implements BencodeVariable {
         return 3;
     }
 
-    public String prettify(){
+    @Override
+    public String toString(){
         StringBuilder b = new StringBuilder("{\r\n");
 
         for(BencodeBytes o : m.keySet()){
@@ -237,10 +238,10 @@ public class BencodeObject implements BencodeVariable {
                     }
 
                 }else if(m.get(o) instanceof BencodeArray){
-                    b.append("\t\033[0;32m"+k+"\033[0m:"+((BencodeArray) m.get(o)).prettify().replaceAll("\\r?\\n", "\r\n\t")+"\r\n");
+                    b.append("\t\033[0;32m"+k+"\033[0m:"+((BencodeArray) m.get(o)).toString().replaceAll("\\r?\\n", "\r\n\t")+"\r\n");
 
-                }else if(m.get(o) instanceof unet.bencode.variables.BencodeObject){
-                    b.append("\t\033[0;32m"+k+"\033[0m:"+((unet.bencode.variables.BencodeObject) m.get(o)).prettify().replaceAll("\\r?\\n", "\r\n\t")+"\r\n");
+                }else if(m.get(o) instanceof BencodeObject){
+                    b.append("\t\033[0;32m"+k+"\033[0m:"+((BencodeObject) m.get(o)).toString().replaceAll("\\r?\\n", "\r\n\t")+"\r\n");
                 }
             }catch(ParseException e){
             }
