@@ -7,9 +7,10 @@ import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.*;
 
-public class BencodeObject implements BencodeVariable {
+public class BencodeObject implements BencodeVariable, BencodeObserver {
 
     private HashMap<BencodeBytes, BencodeVariable> m = new HashMap<>();
+    private BencodeObserver o;
     private int s = 2;
 
     public BencodeObject(){
@@ -53,7 +54,7 @@ public class BencodeObject implements BencodeVariable {
 
     private void put(BencodeBytes k, BencodeVariable v){
         m.put(k, v);
-        s += k.byteSize()+v.byteSize();
+        setByteSize(k.byteSize()+v.byteSize());
     }
 
     private void put(BencodeBytes k, Number n){
@@ -98,10 +99,12 @@ public class BencodeObject implements BencodeVariable {
 
     public void put(String k, BencodeArray a){
         put(new BencodeBytes(k.getBytes()), a);
+        a.setObserver(this);
     }
 
     public void put(String k, BencodeObject o){
         put(new BencodeBytes(k.getBytes()), o);
+        o.setObserver(this);
     }
 
     public BencodeVariable valueOf(BencodeBytes k){
@@ -183,6 +186,7 @@ public class BencodeObject implements BencodeVariable {
     public void remove(String k){
         BencodeBytes b = new BencodeBytes(k.getBytes());
         if(m.containsKey(b)){
+            setByteSize(-b.byteSize()-m.get(b).byteSize());
             m.remove(b);
         }
     }
@@ -197,6 +201,22 @@ public class BencodeObject implements BencodeVariable {
 
     public int size(){
         return m.size();
+    }
+
+    protected void setObserver(BencodeObserver observer){
+        o = observer;
+    }
+
+    private void setByteSize(int s){
+        if(o != null){
+            o.update(s);
+        }
+        this.s += s;
+    }
+
+    @Override
+    public void update(int s){
+        this.s += s;
     }
 
     @Override

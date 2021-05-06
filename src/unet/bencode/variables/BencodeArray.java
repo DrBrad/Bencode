@@ -10,9 +10,10 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
-public class BencodeArray implements BencodeVariable {
+public class BencodeArray implements BencodeVariable, BencodeObserver {
 
     private ArrayList<BencodeVariable> l = new ArrayList<>();
+    private BencodeObserver o;
     private int s = 2;
 
     public BencodeArray(){
@@ -46,7 +47,7 @@ public class BencodeArray implements BencodeVariable {
 
     private void add(BencodeVariable v){
         l.add(v);
-        s += v.byteSize();
+        setByteSize(v.byteSize());
     }
 
     public void add(Number n){
@@ -71,17 +72,19 @@ public class BencodeArray implements BencodeVariable {
 
     public void add(BencodeArray a){
         l.add(a);
-        s += a.byteSize();
+        setByteSize(a.byteSize());
+        a.setObserver(this);
     }
 
     public void add(BencodeObject o){
         l.add(o);
-        s += o.byteSize();
+        setByteSize(o.byteSize());
+        o.setObserver(this);
     }
 
     private void set(int i, BencodeVariable v){
-        s = (s-l.get(i).byteSize())+v.byteSize();
         l.set(i, v);
+        setByteSize(-l.get(i).byteSize()+v.byteSize());
     }
 
     public void set(int i, Number n){
@@ -105,13 +108,15 @@ public class BencodeArray implements BencodeVariable {
     }
 
     public void set(int i, BencodeArray a){
-        s = (s-l.get(i).byteSize())+a.byteSize();
         l.set(i, a);
+        setByteSize(-l.get(i).byteSize()+a.byteSize());
+        a.setObserver(this);
     }
 
     public void set(int i, BencodeObject o){
-        s = (s-l.get(i).byteSize())+o.byteSize();
         l.set(i, o);
+        setByteSize(-l.get(i).byteSize()+o.byteSize());
+        o.setObserver(this);
     }
 
     public BencodeVariable valueOf(int i){
@@ -188,8 +193,8 @@ public class BencodeArray implements BencodeVariable {
 
     private void remove(BencodeVariable v){
         if(l.contains(v)){
-            s -= v.byteSize();
             l.remove(v);
+            setByteSize(-v.byteSize());
         }
     }
 
@@ -205,8 +210,43 @@ public class BencodeArray implements BencodeVariable {
         remove(new BencodeBytes(s.getBytes()));
     }
 
+    private int indexOf(BencodeVariable v){
+        if(l.contains(v)){
+            return l.indexOf(v);
+        }
+        throw new ArrayIndexOutOfBoundsException();
+    }
+
+    public int indexOf(Number n){
+        return indexOf(new BencodeNumber(n.toString()));
+    }
+
+    public int indexOf(byte[] b){
+        return indexOf(new BencodeBytes(b));
+    }
+
+    public int indexOf(String s){
+        return indexOf(new BencodeBytes(s.getBytes()));
+    }
+
     public int size(){
         return l.size();
+    }
+
+    protected void setObserver(BencodeObserver observer){
+        o = observer;
+    }
+
+    private void setByteSize(int s){
+        if(o != null){
+            o.update(s);
+        }
+        this.s += s;
+    }
+
+    @Override
+    public void update(int s){
+        this.s += s;
     }
 
     @Override
