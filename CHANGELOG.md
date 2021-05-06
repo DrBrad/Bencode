@@ -4,7 +4,7 @@
 
 - Fixed child Object and Array adding causing byte sizes to not be updated by parent, which intern caused encoding to fail.
 
-## [2.3] - Apr 21, 2021
+## [2.3 Minor Prettify Changes] - Apr 21, 2021
 
 - Added a prettifier to make it easier to read
 
