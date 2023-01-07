@@ -245,6 +245,9 @@ public class BencodeArray implements BencodeVariable, BencodeObserver {
 
     @Override
     public void update(int s){
+        if(o != null){
+            o.update(s);
+        }
         this.s += s;
     }
 
