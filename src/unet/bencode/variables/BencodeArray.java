@@ -11,14 +11,17 @@ import java.util.Map;
 
 public class BencodeArray implements BencodeVariable, BencodeObserver {
 
-    private ArrayList<BencodeVariable> l = new ArrayList<>();
+    private List<BencodeVariable> l;
     private BencodeObserver o;
     private int s = 2;
 
     public BencodeArray(){
+        l = new ArrayList<>();
     }
 
     public BencodeArray(List<?> l){
+        this.l = new ArrayList<>();
+
         for(Object v : l){
             if(v instanceof BencodeVariable){
                 add((BencodeVariable) v);
@@ -37,11 +40,7 @@ public class BencodeArray implements BencodeVariable, BencodeObserver {
     }
 
     public BencodeArray(byte[] buf){
-        this(new Bencoder().decodeArray(buf, 0));
-    }
-
-    public BencodeArray(byte[] buf, int off){
-        this(new Bencoder().decodeArray(buf, off));
+        this(new Bencoder().decodeArray(buf));
     }
 
     private void add(BencodeVariable v){
@@ -253,11 +252,16 @@ public class BencodeArray implements BencodeVariable, BencodeObserver {
 
     @Override
     public Object getObject(){
-        ArrayList<Object> a = new ArrayList<>();
+        List<Object> a = new ArrayList<>();
         for(BencodeVariable v : l){
             a.add(v.getObject());
         }
         return a;
+    }
+
+    @Override
+    public BencodeType getType(){
+        return BencodeType.ARRAY;
     }
 
     @Override

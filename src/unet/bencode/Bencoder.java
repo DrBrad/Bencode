@@ -24,27 +24,33 @@ public class Bencoder {
         return buf;
     }
 
-    public List<BencodeVariable> decodeArray(byte[] buf, int off){
+    public List<BencodeVariable> decodeArray(byte[] buf){
         this.buf = buf;
-        pos = off;
         return decodeArray();
     }
 
-    public Map<BencodeBytes, BencodeVariable> decodeObject(byte[] buf, int off){
+    public Map<BencodeBytes, BencodeVariable> decodeObject(byte[] buf){
         this.buf = buf;
-        pos = off;
         return decodeObject();
     }
 
     private void put(BencodeVariable v){
-        if(v instanceof BencodeBytes){
-            put((BencodeBytes) v);
-        }else if(v instanceof BencodeNumber){
-            put((BencodeNumber) v);
-        }else if(v instanceof BencodeArray){
-            put((BencodeArray) v);
-        }else if(v instanceof BencodeObject){
-            put((BencodeObject) v);
+        switch(v.getType()){
+            case BYTES:
+                put((BencodeBytes) v);
+                break;
+
+            case NUMBER:
+                put((BencodeNumber) v);
+                break;
+
+            case ARRAY:
+                put((BencodeArray) v);
+                break;
+
+            case OBJECT:
+                put((BencodeObject) v);
+                break;
         }
     }
 
@@ -84,31 +90,33 @@ public class Bencoder {
     }
 
     private List<BencodeVariable> decodeArray(){
-        if(buf[pos] == 'l'){
-            ArrayList<BencodeVariable> a = new ArrayList<>();
-            pos++;
-
-            while(buf[pos] != 'e'){
-                a.add(get());
-            }
-            pos++;
-            return a;
+        if(buf[pos] != 'l'){
+            return null;
         }
-        return null;
+
+        List<BencodeVariable> a = new ArrayList<>();
+        pos++;
+
+        while(buf[pos] != 'e'){
+            a.add(get());
+        }
+        pos++;
+        return a;
     }
 
     private Map<BencodeBytes, BencodeVariable> decodeObject(){
-        if(buf[pos] == 'd'){
-            HashMap<BencodeBytes, BencodeVariable> m = new HashMap<>();
-            pos++;
-
-            while(buf[pos] != 'e'){
-                m.put(getBytes(), get());
-            }
-            pos++;
-            return m;
+        if(buf[pos] != 'd'){
+            return null;
         }
-        return null;
+
+        Map<BencodeBytes, BencodeVariable> m = new HashMap<>();
+        pos++;
+
+        while(buf[pos] != 'e'){
+            m.put(getBytes(), get());
+        }
+        pos++;
+        return m;
     }
 
     private BencodeVariable get(){
@@ -123,6 +131,7 @@ public class Bencoder {
                 if(buf[pos] >= '0' && buf[pos] <= '9'){
                     return getBytes();
                 }
+                break;
         }
         return null;
     }
@@ -148,10 +157,9 @@ public class Bencoder {
             pos++;
         }
 
-        int t = Integer.parseInt(new String(c, 0, pos-s));
-        byte[] b = new byte[t];
+        byte[] b = new byte[Integer.parseInt(new String(c, 0, pos-s))];
         System.arraycopy(buf, pos+1, b, 0, b.length);
-        pos += t+1;
+        pos += b.length+1;
 
         return new BencodeBytes(b);
     }

@@ -28,6 +28,11 @@ public class BencodeNumber implements BencodeVariable {
     }
 
     @Override
+    public BencodeType getType(){
+        return BencodeType.NUMBER;
+    }
+
+    @Override
     public int byteSize(){
         return s;
     }

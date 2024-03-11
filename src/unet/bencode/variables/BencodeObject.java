@@ -8,14 +8,17 @@ import java.util.*;
 
 public class BencodeObject implements BencodeVariable, BencodeObserver {
 
-    private HashMap<BencodeBytes, BencodeVariable> m = new HashMap<>();
+    private Map<BencodeBytes, BencodeVariable> m;
     private BencodeObserver o;
     private int s = 2;
 
     public BencodeObject(){
+        m = new HashMap<>();
     }
 
     public BencodeObject(Map<?, ?> m){
+        this.m = new HashMap<>();
+
         for(Object o : m.keySet()){
             BencodeBytes k;
 
@@ -44,11 +47,7 @@ public class BencodeObject implements BencodeVariable, BencodeObserver {
     }
 
     public BencodeObject(byte[] buf){
-        this(new Bencoder().decodeObject(buf, 0));
-    }
-
-    public BencodeObject(byte[] buf, int off){
-        this(new Bencoder().decodeObject(buf, off));
+        this(new Bencoder().decodeObject(buf));
     }
 
     private void put(BencodeBytes k, BencodeVariable v){
@@ -223,11 +222,16 @@ public class BencodeObject implements BencodeVariable, BencodeObserver {
 
     @Override
     public Map<String, ?> getObject(){
-        HashMap<String, Object> h = new HashMap<>();
+        Map<String, Object> h = new HashMap<>();
         for(BencodeBytes k : m.keySet()){
             h.put(new String(k.getObject()), m.get(k).getObject());
         }
         return h;
+    }
+
+    @Override
+    public BencodeType getType(){
+        return BencodeType.OBJECT;
     }
 
     @Override

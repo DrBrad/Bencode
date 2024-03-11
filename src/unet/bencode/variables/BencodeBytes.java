@@ -26,6 +26,11 @@ public class BencodeBytes implements BencodeVariable {
     }
 
     @Override
+    public BencodeType getType(){
+        return BencodeType.BYTES;
+    }
+
+    @Override
     public int byteSize(){
         return s;
     }
