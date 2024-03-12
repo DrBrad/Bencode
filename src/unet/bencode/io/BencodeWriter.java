@@ -17,6 +17,14 @@ public class BencodeWriter {
         put(ben);
     }
 
+    public void flush()throws IOException {
+        out.flush();
+    }
+
+    public void close()throws IOException {
+        out.close();
+    }
+
     private void put(BencodeVariable v)throws IOException {
         switch(v.getType()){
             case BYTES:

@@ -21,6 +21,10 @@ public class BencodeReader {
         return get((byte) in.read());
     }
 
+    public void close()throws IOException {
+        in.close();
+    }
+
     private BencodeVariable get(byte b)throws IOException {
         switch(b){
             case 'i':
