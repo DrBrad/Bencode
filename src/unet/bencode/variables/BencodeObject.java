@@ -230,13 +230,29 @@ public class BencodeObject implements BencodeVariable, BencodeObserver {
     }
 
     @Override
-    public BencodeType getType(){
-        return BencodeType.OBJECT;
-    }
-
-    @Override
     public int byteSize(){
         return s;
+    }
+
+    public byte[] encode(){
+        byte[] buf = new byte[s];
+
+        buf[0] = 'd';
+        int pos = 1;
+
+        for(BencodeBytes k : m.keySet()){
+            byte[] key = k.encode();
+            System.arraycopy(key, 0, buf, pos, key.length);
+            pos += key.length;
+
+            byte[] value = m.get(k).encode();
+            System.arraycopy(value, 0, buf, pos, value.length);
+            pos += value.length;
+        }
+
+        buf[pos] = 'e';
+
+        return buf;
     }
 
     @Override
@@ -271,9 +287,5 @@ public class BencodeObject implements BencodeVariable, BencodeObserver {
         }
 
         return b+"}";
-    }
-
-    public byte[] encode(){
-        return new Bencoder().encode(this);
     }
 }

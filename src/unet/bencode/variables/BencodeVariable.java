@@ -6,5 +6,5 @@ public interface BencodeVariable {
 
     int byteSize();
 
-    BencodeType getType();
+    byte[] encode();
 }

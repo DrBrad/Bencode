@@ -14,10 +14,6 @@ public class BencodeNumber implements BencodeVariable {
         s = n.getBytes().length+2;
     }
 
-    public byte[] getBytes(){
-        return ('i'+n+'e').getBytes();
-    }
-
     @Override
     public Number getObject(){
         try{
@@ -28,19 +24,19 @@ public class BencodeNumber implements BencodeVariable {
     }
 
     @Override
-    public BencodeType getType(){
-        return BencodeType.NUMBER;
-    }
-
-    @Override
     public int byteSize(){
         return s;
     }
 
     @Override
+    public byte[] encode(){
+        return ('i'+n+'e').getBytes();
+    }
+
+    @Override
     public boolean equals(Object o){
         if(o instanceof BencodeNumber){
-            return Arrays.equals(getBytes(), ((BencodeNumber) o).getBytes());
+            return Arrays.equals(encode(), ((BencodeNumber) o).encode());
         }
         return false;
     }

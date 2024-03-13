@@ -12,22 +12,9 @@ public class BencodeBytes implements BencodeVariable {
         s = (b.length+":").getBytes().length+b.length;
     }
 
-    public byte[] getBytes(){
-        byte[] r = new byte[s];
-        byte[] l = (b.length+":").getBytes();
-        System.arraycopy(l, 0, r, 0, l.length);
-        System.arraycopy(b, 0, r, l.length, b.length);
-        return r;
-    }
-
     @Override
     public byte[] getObject(){
         return b;
-    }
-
-    @Override
-    public BencodeType getType(){
-        return BencodeType.BYTES;
     }
 
     @Override
@@ -36,9 +23,18 @@ public class BencodeBytes implements BencodeVariable {
     }
 
     @Override
+    public byte[] encode(){
+        byte[] r = new byte[s];
+        byte[] l = (b.length+":").getBytes();
+        System.arraycopy(l, 0, r, 0, l.length);
+        System.arraycopy(b, 0, r, l.length, b.length);
+        return r;
+    }
+
+    @Override
     public boolean equals(Object o){
         if(o instanceof BencodeBytes){
-            return Arrays.equals(getBytes(), ((BencodeBytes) o).getBytes());
+            return Arrays.equals(encode(), ((BencodeBytes) o).encode());
         }
         return false;
     }
