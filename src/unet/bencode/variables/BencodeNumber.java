@@ -1,5 +1,7 @@
 package unet.bencode.variables;
 
+import unet.bencode.variables.inter.BencodeVariable;
+
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Arrays;

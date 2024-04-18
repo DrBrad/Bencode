@@ -1,4 +1,4 @@
-package unet.bencode.variables;
+package unet.bencode.variables.inter;
 
 public interface BencodeVariable {
 

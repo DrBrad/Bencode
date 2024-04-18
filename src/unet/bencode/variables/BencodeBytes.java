@@ -1,5 +1,7 @@
 package unet.bencode.variables;
 
+import unet.bencode.variables.inter.BencodeVariable;
+
 import java.util.Arrays;
 
 public class BencodeBytes implements BencodeVariable {

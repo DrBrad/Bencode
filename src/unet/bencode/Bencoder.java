@@ -1,6 +1,7 @@
 package unet.bencode;
 
 import unet.bencode.variables.*;
+import unet.bencode.variables.inter.BencodeVariable;
 
 import java.util.ArrayList;
 import java.util.HashMap;

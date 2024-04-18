@@ -1,6 +1,8 @@
 package unet.bencode.variables;
 
 import unet.bencode.Bencoder;
+import unet.bencode.variables.inter.BencodeObserver;
+import unet.bencode.variables.inter.BencodeVariable;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
