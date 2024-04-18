@@ -266,6 +266,7 @@ public class BencodeArray implements BencodeVariable, BencodeObserver {
         return s;
     }
 
+    @Override
     public byte[] encode(){
         byte[] buf = new byte[s];
 
@@ -281,6 +282,11 @@ public class BencodeArray implements BencodeVariable, BencodeObserver {
         buf[pos] = 'e';
 
         return buf;
+    }
+
+    @Override
+    public void decode(byte[] buf, int off){
+
     }
 
     @Override

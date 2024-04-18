@@ -7,4 +7,6 @@ public interface BencodeVariable {
     int byteSize();
 
     byte[] encode();
+
+    void decode(byte[] buf, int off);
 }

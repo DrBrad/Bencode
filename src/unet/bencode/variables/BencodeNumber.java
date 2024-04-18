@@ -11,6 +11,9 @@ public class BencodeNumber implements BencodeVariable {
     private String n;
     private int s;
 
+    public BencodeNumber(){
+    }
+
     public BencodeNumber(String n){
         this.n = n;
         s = n.getBytes().length+2;
@@ -33,6 +36,34 @@ public class BencodeNumber implements BencodeVariable {
     @Override
     public byte[] encode(){
         return ('i'+n+'e').getBytes();
+    }
+
+    @Override
+    public void decode(byte[] buf, int off){
+        byte[] c = new byte[32];
+        off++;
+        int s = off;
+
+        while(buf[off] != 'e'){
+            c[off-s] = buf[off];
+            off++;
+        }
+        off++;
+
+        int value = 0;
+        for (int i = 0; i < c.length; i++) {
+            value = (value << 8) | (c[i] & 0xFF);
+        }
+
+        //return new BencodeNumber(new String(c, 0, pos-s-1));
+    }
+
+    public static int byteArrayToInt(byte[] bytes) {
+        int value = 0;
+        for (int i = 0; i < bytes.length; i++) {
+            value = (value << 8) | (bytes[i] & 0xFF);
+        }
+        return value;
     }
 
     @Override

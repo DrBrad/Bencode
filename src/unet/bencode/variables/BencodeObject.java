@@ -2,17 +2,21 @@ package unet.bencode.variables;
 
 import unet.bencode.Bencoder;
 import unet.bencode.variables.inter.BencodeObserver;
+import unet.bencode.variables.inter.BencodeType;
 import unet.bencode.variables.inter.BencodeVariable;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
+import static unet.bencode.utils.BencodeUtils.unpackBencode;
+
 public class BencodeObject implements BencodeVariable, BencodeObserver {
 
     private Map<BencodeBytes, BencodeVariable> m;
     private BencodeObserver o;
     private int s = 2;
+    private BencodeType type = BencodeType.OBJECT;
 
     public BencodeObject(){
         m = new HashMap<>();
@@ -236,10 +240,11 @@ public class BencodeObject implements BencodeVariable, BencodeObserver {
         return s;
     }
 
+    @Override
     public byte[] encode(){
         byte[] buf = new byte[s];
 
-        buf[0] = 'd';
+        buf[0] = (byte) type.getPrefix();
         int pos = 1;
 
         for(BencodeBytes k : m.keySet()){
@@ -252,9 +257,34 @@ public class BencodeObject implements BencodeVariable, BencodeObserver {
             pos += value.length;
         }
 
-        buf[pos] = 'e';
+        buf[pos] = (byte) type.getSuffix();
 
         return buf;
+    }
+
+    @Override
+    public void decode(byte[] buf, int off){
+        if(BencodeType.getTypeByPrefix((char) buf[off]).equals(type)){
+            throw new IllegalArgumentException("Byte array is not a bencode object.");
+        }
+        off++;
+
+        while(buf[off] != type.getSuffix()){
+            BencodeBytes key = new BencodeBytes();
+            key.decode(buf, off);
+            off += key.byteSize();
+
+            System.out.println(new String(key.getObject()));
+            //break;
+
+            BencodeVariable value = unpackBencode(buf, off);
+            off += value.byteSize();
+
+            break;
+
+            //m.put(key, value);
+        }
+        s = off+1;
     }
 
     @Override

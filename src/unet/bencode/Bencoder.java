@@ -1,6 +1,7 @@
 package unet.bencode;
 
 import unet.bencode.variables.*;
+import unet.bencode.variables.inter.BencodeType;
 import unet.bencode.variables.inter.BencodeVariable;
 
 import java.util.ArrayList;
@@ -27,6 +28,14 @@ public class Bencoder {
             throw new IllegalArgumentException("Can't decode, byte array is not bencode object.");
         }
         return getMap();
+    }
+
+    private void test(byte[] buf){
+        char c = 'c';
+        switch(BencodeType.getTypeByPrefix(c)){
+            case NUMBER:
+                break;
+        }
     }
 
     private BencodeVariable get(){
