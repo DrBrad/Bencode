@@ -1,25 +1,26 @@
 package unet.bencode.variables;
 
-import unet.bencode.Bencoder;
 import unet.bencode.variables.inter.BencodeObserver;
+import unet.bencode.variables.inter.BencodeType;
 import unet.bencode.variables.inter.BencodeVariable;
 
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-public class BencodeObject implements BencodeVariable, BencodeObserver {
+import static unet.bencode.utils.BencodeUtils.unpackBencode;
+
+public class BencodeObject extends BencodeVariable implements BencodeObserver {
 
     private Map<BencodeBytes, BencodeVariable> m;
     private BencodeObserver o;
     private int s = 2;
 
     public BencodeObject(){
+        type = BencodeType.OBJECT;
         m = new HashMap<>();
     }
 
     public BencodeObject(Map<?, ?> m){
-        this.m = new HashMap<>();
+        this();
 
         for(Object o : m.keySet()){
             BencodeBytes k;
@@ -49,7 +50,13 @@ public class BencodeObject implements BencodeVariable, BencodeObserver {
     }
 
     public BencodeObject(byte[] buf){
-        this(new Bencoder().decodeObject(buf));
+        this();
+        decode(buf);
+    }
+
+    public BencodeObject(byte[] buf, int off){
+        this();
+        decode(buf, off);
     }
 
     private void put(BencodeBytes k, BencodeVariable v){
@@ -58,7 +65,7 @@ public class BencodeObject implements BencodeVariable, BencodeObserver {
     }
 
     private void put(BencodeBytes k, Number n){
-        put(k, new BencodeNumber(n.toString()));
+        put(k, new BencodeNumber(n));
     }
 
     private void put(BencodeBytes k, byte[] b){
@@ -78,7 +85,7 @@ public class BencodeObject implements BencodeVariable, BencodeObserver {
     }
 
     public void put(String k, Number n){
-        put(new BencodeBytes(k.getBytes()), new BencodeNumber(n.toString()));
+        put(new BencodeBytes(k.getBytes()), new BencodeNumber(n));
     }
 
     public void put(String k, byte[] b){
@@ -156,7 +163,7 @@ public class BencodeObject implements BencodeVariable, BencodeObserver {
     }
 
     public boolean containsValue(Number n){
-        return m.containsValue(new BencodeNumber(n.toString()));
+        return m.containsValue(new BencodeNumber(n));
     }
 
     public boolean containsValue(String s){
@@ -236,10 +243,11 @@ public class BencodeObject implements BencodeVariable, BencodeObserver {
         return s;
     }
 
+    @Override
     public byte[] encode(){
         byte[] buf = new byte[s];
 
-        buf[0] = 'd';
+        buf[0] = (byte) type.getPrefix();
         int pos = 1;
 
         for(BencodeBytes k : m.keySet()){
@@ -252,9 +260,30 @@ public class BencodeObject implements BencodeVariable, BencodeObserver {
             pos += value.length;
         }
 
-        buf[pos] = 'e';
+        buf[pos] = (byte) type.getSuffix();
 
         return buf;
+    }
+
+    @Override
+    public void decode(byte[] buf, int off){
+        if(!BencodeType.getTypeByPrefix((char) buf[off]).equals(type)){
+            throw new IllegalArgumentException("Byte array is not a bencode object.");
+        }
+        int s = off;
+        off++;
+
+        while(buf[off] != type.getSuffix()){
+            BencodeBytes key = new BencodeBytes();
+            key.decode(buf, off);
+            off += key.byteSize();
+
+            BencodeVariable value = unpackBencode(buf, off);
+            off += value.byteSize();
+
+            m.put(key, value);
+        }
+        this.s = (off-s)+1;
     }
 
     @Override
@@ -267,24 +296,17 @@ public class BencodeObject implements BencodeVariable, BencodeObserver {
         StringBuilder b = new StringBuilder("{\r\n");
 
         for(BencodeBytes o : m.keySet()){
-            String k = new String(o.getObject());
-
             if(m.get(o) instanceof BencodeNumber){
-                b.append("\t\033[0;31m"+k+"\033[0m:\033[0;33m"+((BencodeNumber) m.get(o)).getObject()+"\033[0m\r\n");
+                b.append("\t\033[0;31m"+o+"\033[0m: \033[0;33m"+m.get(o)+"\033[0m\r\n");
 
             }else if(m.get(o) instanceof BencodeBytes){
-                if(Charset.forName("US-ASCII").newEncoder().canEncode(new String(((BencodeBytes) m.get(o)).getObject()))){
-                    b.append("\t\033[0;31m"+k+"\033[0m:\033[0;34m"+new String(((BencodeBytes) m.get(o)).getObject(), StandardCharsets.UTF_8)+"\033[0m\r\n");
-
-                }else{
-                    b.append("\t\033[0;31m"+k+"\033[0m:\033[0;34m BASE64 { "+Base64.getEncoder().encodeToString(((BencodeBytes) m.get(o)).getObject())+" }\033[0m\r\n");
-                }
+                b.append("\t\033[0;31m"+o+"\033[0m: \033[0;34m"+m.get(o)+"\033[0m\r\n");
 
             }else if(m.get(o) instanceof BencodeArray){
-                b.append("\t\033[0;32m"+k+"\033[0m:"+((BencodeArray) m.get(o)).toString().replaceAll("\\r?\\n", "\r\n\t")+"\r\n");
+                b.append("\t\033[0;32m"+o+"\033[0m: "+m.get(o).toString().replaceAll("\\r?\\n", "\r\n\t")+"\r\n");
 
             }else if(m.get(o) instanceof BencodeObject){
-                b.append("\t\033[0;32m"+k+"\033[0m:"+((BencodeObject) m.get(o)).toString().replaceAll("\\r?\\n", "\r\n\t")+"\r\n");
+                b.append("\t\033[0;32m"+o+"\033[0m: "+m.get(o).toString().replaceAll("\\r?\\n", "\r\n\t")+"\r\n");
             }
         }
 
