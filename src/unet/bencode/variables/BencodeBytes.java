@@ -5,16 +5,17 @@ import unet.bencode.variables.inter.BencodeVariable;
 
 import java.util.Arrays;
 
-public class BencodeBytes implements BencodeVariable {
+public class BencodeBytes extends BencodeVariable {
 
     private byte[] b;
     private int s;
-    private BencodeType type = BencodeType.BYTES;
 
     public BencodeBytes(){
+        type = BencodeType.BYTES;
     }
 
     public BencodeBytes(byte[] b){
+        this();
         this.b = b;
         s = (b.length+type.getDelimiter()+"").getBytes().length+b.length;
     }
@@ -40,11 +41,9 @@ public class BencodeBytes implements BencodeVariable {
 
     @Override
     public void decode(byte[] buf, int off){
-        if(BencodeType.getTypeByPrefix((char) buf[off]).equals(type)){
+        if(!BencodeType.getTypeByPrefix((char) buf[off]).equals(type)){
             throw new IllegalArgumentException("Byte array is not a bencode bytes / string.");
         }
-
-        System.out.println("AAA  "+(char) buf[off]);
 
         byte[] c = new byte[8];
         int s = off;
@@ -56,7 +55,7 @@ public class BencodeBytes implements BencodeVariable {
 
         int length = 0;
         for(int i = 0; i < off-s; i++){
-            length = length * 10 + (c[i] - '0');
+            length = length*10+(c[i]-'0');
         }
 
         b = new byte[length];

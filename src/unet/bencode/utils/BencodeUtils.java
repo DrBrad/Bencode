@@ -12,10 +12,6 @@ public class BencodeUtils {
     public static BencodeVariable unpackBencode(byte[] buf, int off){
         BencodeType type = BencodeType.getTypeByPrefix((char) buf[off]);
 
-        System.out.println((char) buf[off]);
-
-        System.out.println(type);
-
         BencodeVariable variable;
         switch(type){
             case NUMBER:

@@ -70,7 +70,7 @@ public class Bencoder {
         }
         pos++;
 
-        return new BencodeNumber(new String(c, 0, pos-s-1));
+        return null;//new BencodeNumber(new String(c, 0, pos-s-1));
     }
 
     private BencodeBytes getBytes(){

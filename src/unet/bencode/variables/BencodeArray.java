@@ -2,6 +2,7 @@ package unet.bencode.variables;
 
 import unet.bencode.Bencoder;
 import unet.bencode.variables.inter.BencodeObserver;
+import unet.bencode.variables.inter.BencodeType;
 import unet.bencode.variables.inter.BencodeVariable;
 
 import java.nio.charset.Charset;
@@ -11,24 +12,26 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
-public class BencodeArray implements BencodeVariable, BencodeObserver {
+public class BencodeArray extends BencodeVariable implements BencodeObserver {
 
     private List<BencodeVariable> l;
     private BencodeObserver o;
     private int s = 2;
 
     public BencodeArray(){
+        type = BencodeType.ARRAY;
         l = new ArrayList<>();
     }
 
     public BencodeArray(List<?> l){
+        type = BencodeType.ARRAY;
         this.l = new ArrayList<>();
 
         for(Object v : l){
             if(v instanceof BencodeVariable){
                 add((BencodeVariable) v);
             }else if(v instanceof Number){
-                add((Number) v);
+                //add((Number) v);
             }else if(v instanceof String){
                 add((String) v);
             }else if(v instanceof byte[]){
@@ -50,9 +53,11 @@ public class BencodeArray implements BencodeVariable, BencodeObserver {
         setByteSize(v.byteSize());
     }
 
+    /*
     public void add(Number n){
         add(new BencodeNumber(n.toString()));
     }
+    */
 
     public void add(byte[] b){
         add(new BencodeBytes(b));
@@ -87,9 +92,11 @@ public class BencodeArray implements BencodeVariable, BencodeObserver {
         setByteSize(-l.get(i).byteSize()+v.byteSize());
     }
 
+    /*
     public void set(int i, Number n){
         set(i, new BencodeNumber(n.toString()));
     }
+    */
 
     public void set(int i, byte[] b){
         set(i, new BencodeBytes(b));
@@ -163,9 +170,11 @@ public class BencodeArray implements BencodeVariable, BencodeObserver {
         return (BencodeObject) l.get(i);
     }
 
+    /*
     public boolean contains(Number n){
         return l.contains(new BencodeNumber(n.toString()));
     }
+    */
 
     public boolean contains(String s){
         return l.contains(new BencodeBytes(s.getBytes()));
@@ -198,9 +207,11 @@ public class BencodeArray implements BencodeVariable, BencodeObserver {
         }
     }
 
+    /*
     public void remove(Number n){
         remove(new BencodeNumber(n.toString()));
     }
+    */
 
     public void remove(byte[] b){
         remove(new BencodeBytes(b));
@@ -217,9 +228,11 @@ public class BencodeArray implements BencodeVariable, BencodeObserver {
         throw new ArrayIndexOutOfBoundsException();
     }
 
+    /*
     public int indexOf(Number n){
         return indexOf(new BencodeNumber(n.toString()));
     }
+    */
 
     public int indexOf(byte[] b){
         return indexOf(new BencodeBytes(b));

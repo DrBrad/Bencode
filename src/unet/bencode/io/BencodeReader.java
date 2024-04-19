@@ -57,7 +57,7 @@ public class BencodeReader {
             i++;
         }
 
-        return new BencodeNumber(new String(c, 0, i));
+        return null;//new BencodeNumber(new String(c, 0, i));
     }
 
     private BencodeBytes getBytes(byte b)throws IOException {

@@ -1,12 +1,14 @@
 package unet.bencode.variables.inter;
 
-public interface BencodeVariable {
+public abstract class BencodeVariable {
 
-    Object getObject();
+    protected BencodeType type;
 
-    int byteSize();
+    public abstract Object getObject();
 
-    byte[] encode();
+    public abstract int byteSize();
 
-    void decode(byte[] buf, int off);
+    public abstract byte[] encode();
+
+    public abstract void decode(byte[] buf, int off);
 }

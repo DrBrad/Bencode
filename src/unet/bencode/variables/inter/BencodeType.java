@@ -3,7 +3,7 @@ package unet.bencode.variables.inter;
 public enum BencodeType {
 
     NUMBER {
-        private boolean isPrefix(char c){
+        public boolean isPrefix(char c){
             return c == getPrefix();
         }
 
@@ -16,7 +16,7 @@ public enum BencodeType {
         }
     },
     OBJECT {
-        private boolean isPrefix(char c){
+        public boolean isPrefix(char c){
             return c == getPrefix();
         }
 
@@ -29,7 +29,7 @@ public enum BencodeType {
         }
     },
     ARRAY {
-        private boolean isPrefix(char c){
+        public boolean isPrefix(char c){
             return c == getPrefix();
         }
 
@@ -42,8 +42,7 @@ public enum BencodeType {
         }
     },
     BYTES {
-        private boolean isPrefix(char c){
-            System.out.println("BYTE PREFIX CHECK");
+        public boolean isPrefix(char c){
             return (c >= '0' && c <= '9');
         }
 
@@ -52,7 +51,7 @@ public enum BencodeType {
         }
     }, INVALID;
 
-    private boolean isPrefix(char c){
+    public boolean isPrefix(char c){
         return false;
     }
 
