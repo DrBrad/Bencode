@@ -48,12 +48,9 @@ public class BencodeNumber extends BencodeVariable {
         int t = n;
 
         for(int i = s-2; i >= 1; i--){
-            b[i] = (byte) (t%10);
-            System.out.println(i+"  "+b[i]);
+            b[i] = (byte) ((t%10)+'0');
             t /= 10;
         }
-
-        b[1] = (char) 3;
 
         return b;
     }
@@ -72,12 +69,15 @@ public class BencodeNumber extends BencodeVariable {
             c[off-s] = buf[off];
             off++;
         }
-        off++;
+
+        System.out.println(off-s);
 
         n = 0;
         for(int i = 0; i < off-s; i++){
             n = n*10+(c[i]-'0');
         }
+
+        this.s = off-s+2;
     }
 
     @Override

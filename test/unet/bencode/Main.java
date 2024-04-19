@@ -10,6 +10,7 @@ public class Main {
         BencodeObject o = new BencodeObject();
         o.put("animal", "bark");
         o.put("cat", "dog");
+        //o.put("test", 100);
 
         byte[] buf = o.encode();
         System.out.println(new String(buf));
@@ -17,17 +18,5 @@ public class Main {
         o = new BencodeObject();
         o.decode(buf, 0);
         System.out.println(o);
-
-        BencodeNumber n = new BencodeNumber(100);
-        buf = n.encode();
-        System.out.println(new String(buf));
-        n = new BencodeNumber();
-        n.decode(buf, 0);
-        System.out.println(n.getObject());
-
-        int x = 100;
-        String s = ""+x;
-        byte[] z = s.getBytes();
-        System.out.println(new String(z));
     }
 }

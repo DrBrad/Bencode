@@ -17,7 +17,13 @@ public class BencodeBytes extends BencodeVariable {
     public BencodeBytes(byte[] b){
         this();
         this.b = b;
-        s = (b.length+type.getDelimiter()+"").getBytes().length+b.length;
+
+        s = 1+b.length;
+        int t = b.length;
+        while(t != 0){
+            t /= 10;
+            s++;
+        }
     }
 
     @Override
@@ -33,9 +39,22 @@ public class BencodeBytes extends BencodeVariable {
     @Override
     public byte[] encode(){
         byte[] r = new byte[s];
-        byte[] l = (b.length+":").getBytes();
-        System.arraycopy(l, 0, r, 0, l.length);
-        System.arraycopy(b, 0, r, l.length, b.length);
+
+        int t = b.length, d = 0;
+        while(t != 0){
+            t /= 10;
+            d++;
+        }
+
+        t = b.length;
+        for(int i = d-1; i >= 0; i--){
+            r[i] = (byte) ((t%10)+'0');
+            t /= 10;
+        }
+
+        r[d] = (byte) type.getDelimiter();
+        System.arraycopy(b, 0, r, d+1, b.length);
+
         return r;
     }
 
