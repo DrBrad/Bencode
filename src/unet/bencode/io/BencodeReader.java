@@ -1,10 +1,13 @@
 package unet.bencode.io;
 
 import unet.bencode.variables.*;
+import unet.bencode.variables.inter.BencodeType;
 import unet.bencode.variables.inter.BencodeVariable;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,24 +30,21 @@ public class BencodeReader {
     }
 
     private BencodeVariable get(byte b)throws IOException {
-        switch(b){
-            case 'i':
+        switch(BencodeType.getTypeByPrefix((char) b)){
+            case NUMBER:
                 return getNumber();
 
-            case 'l':
+            case ARRAY:
                 return getList();
 
-            case 'd':
+            case OBJECT:
                 return getMap();
 
-            default:
-                if(b >= '0' && b <= '9'){
-                    return getBytes(b);
-                }
-                break;
+            case BYTES:
+                return getBytes(b);
         }
 
-        return null;
+        throw new IOException("Prefix is not of bencode type.");
     }
 
     private BencodeNumber getNumber()throws IOException {
@@ -52,25 +52,34 @@ public class BencodeReader {
         int i = 0;
 
         byte b;
-        while((b = (byte) in.read()) != 'e'){
+        while((b = (byte) in.read()) != BencodeType.NUMBER.getSuffix()){
             c[i] = (char) b;
             i++;
         }
 
-        return null;//new BencodeNumber(new String(c, 0, i));
+        try{
+            return new BencodeNumber(NumberFormat.getInstance().parse(new String(c, 0, i)));
+        }catch(ParseException e){
+            throw new IOException("Failed to parse bencode number");
+        }
     }
 
     private BencodeBytes getBytes(byte b)throws IOException {
-        char[] c = new char[8];
-        c[0] = (char) b;
+        byte[] c = new byte[8];
+        c[0] = b;
         int i = 1;
 
-        while((b = (byte) in.read()) != ':'){
-            c[i] = (char) b;
+        while((b = (byte) in.read()) != BencodeType.BYTES.getDelimiter()){
+            c[i] = b;
             i++;
         }
 
-        byte[] buf = new byte[Integer.parseInt(new String(c, 0, i))];
+        int length = 0;
+        for(int j = 0; j < i; j++){
+            length = length*10+(c[j]-'0');
+        }
+
+        byte[] buf = new byte[length];
         in.read(buf, 0, buf.length);
 
         return new BencodeBytes(buf);
@@ -80,7 +89,7 @@ public class BencodeReader {
         List<BencodeVariable> a = new ArrayList<>();
 
         byte b;
-        while((b = (byte) in.read()) != 'e'){
+        while((b = (byte) in.read()) != BencodeType.ARRAY.getSuffix()){
             a.add(get(b));
         }
 
@@ -91,7 +100,7 @@ public class BencodeReader {
         Map<BencodeBytes, BencodeVariable> m = new HashMap<>();
 
         byte b;
-        while((b = (byte) in.read()) != 'e'){
+        while((b = (byte) in.read()) != BencodeType.OBJECT.getSuffix()){
             BencodeBytes key = getBytes(b);
             m.put(key, get((byte) in.read()));
         }

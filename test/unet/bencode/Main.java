@@ -1,12 +1,17 @@
 package unet.bencode;
 
+import unet.bencode.io.BencodeReader;
 import unet.bencode.variables.BencodeArray;
 import unet.bencode.variables.BencodeNumber;
 import unet.bencode.variables.BencodeObject;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+
 public class Main {
 
-    public static void main(String[] args){
+    public static void main(String[] args)throws IOException {
         BencodeObject o = new BencodeObject();
         o.put("animal", "bark");
         o.put("cat", "dog");
@@ -31,5 +36,9 @@ public class Main {
         n.decode(buf, 0);
 
         System.out.println(n);
+
+        BencodeReader r = new BencodeReader(new FileInputStream(new File("/home/brad/Downloads/torrent.torrent")));
+        o = (BencodeObject) r.read();
+        System.out.println(o);
     }
 }
