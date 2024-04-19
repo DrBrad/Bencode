@@ -9,25 +9,18 @@ import java.util.Arrays;
 
 public class BencodeNumber extends BencodeVariable {
 
-    private int n;
+    private Number n;
     private int s;
 
     public BencodeNumber(){
         type = BencodeType.NUMBER;
     }
 
-    public BencodeNumber(int n){
+    public BencodeNumber(Number n){
         this();
         this.n = n;
 
-        s = 2;
-        int t = n;
-        while(t != 0){
-            t /= 10;
-            s++;
-        }
-        //this.n = n;
-        //s = n+2;
+        s = 2+n.toString().getBytes().length;
     }
 
     @Override
@@ -45,12 +38,8 @@ public class BencodeNumber extends BencodeVariable {
         byte[] b = new byte[s];
         b[0] = (byte) type.getPrefix();
         b[s-1] = (byte) type.getSuffix();
-        int t = n;
-
-        for(int i = s-2; i >= 1; i--){
-            b[i] = (byte) ((t%10)+'0');
-            t /= 10;
-        }
+        byte[] c = n.toString().getBytes();
+        System.arraycopy(c, 0, b, 1, c.length);
 
         return b;
     }
@@ -61,20 +50,19 @@ public class BencodeNumber extends BencodeVariable {
             throw new IllegalArgumentException("Byte array is not a bencode bytes / string.");
         }
 
-        byte[] c = new byte[32];
+        char[] c = new char[32];
         off++;
         int s = off;
 
         while(buf[off] != type.getSuffix()){
-            c[off-s] = buf[off];
+            c[off-s] = (char) buf[off];
             off++;
         }
 
-        System.out.println(off-s);
-
-        n = 0;
-        for(int i = 0; i < off-s; i++){
-            n = n*10+(c[i]-'0');
+        try{
+            n = NumberFormat.getInstance().parse(new String(c, 0, off-s));
+        }catch(ParseException e){
+            throw new IllegalArgumentException("Number is invalid.");
         }
 
         this.s = off-s+2;
@@ -91,5 +79,10 @@ public class BencodeNumber extends BencodeVariable {
     @Override
     public int hashCode(){
         return 1;
+    }
+
+    @Override
+    public String toString(){
+        return n.toString();
     }
 }

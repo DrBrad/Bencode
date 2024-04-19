@@ -3,7 +3,10 @@ package unet.bencode.variables;
 import unet.bencode.variables.inter.BencodeType;
 import unet.bencode.variables.inter.BencodeVariable;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Base64;
 
 public class BencodeBytes extends BencodeVariable {
 
@@ -93,5 +96,14 @@ public class BencodeBytes extends BencodeVariable {
     @Override
     public int hashCode(){
         return 0;
+    }
+
+    @Override
+    public String toString(){
+        if(Charset.forName("US-ASCII").newEncoder().canEncode(new String(b))){
+            return "\""+new String(b, StandardCharsets.UTF_8)+"\"";
+        }
+
+        return Base64.getEncoder().encodeToString(b);
     }
 }

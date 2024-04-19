@@ -29,7 +29,6 @@ public class BencodeUtils {
             case BYTES:
                 variable = new BencodeBytes();
                 break;
-                //return getBytes();
 
             default:
                 return null;
