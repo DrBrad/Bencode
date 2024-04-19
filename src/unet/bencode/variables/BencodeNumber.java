@@ -47,7 +47,7 @@ public class BencodeNumber extends BencodeVariable {
     @Override
     public void decode(byte[] buf, int off){
         if(!BencodeType.getTypeByPrefix((char) buf[off]).equals(type)){
-            throw new IllegalArgumentException("Byte array is not a bencode bytes / string.");
+            throw new IllegalArgumentException("Byte array is not a bencode number.");
         }
 
         char[] c = new char[32];

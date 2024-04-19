@@ -31,7 +31,7 @@ public class BencodeUtils {
                 break;
 
             default:
-                return null;
+                throw new IllegalArgumentException("Invalid key type.");
         }
 
         variable.decode(buf, off);
