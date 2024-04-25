@@ -60,8 +60,9 @@ public class BencodeObject extends BencodeVariable implements BencodeObserver {
     }
 
     private void put(BencodeBytes k, BencodeVariable v){
+        int s = (m.containsKey(k)) ? v.byteSize()-m.get(k).byteSize() : k.byteSize()+v.byteSize();
         m.put(k, v);
-        setByteSize(k.byteSize()+v.byteSize());
+        setByteSize(s);
     }
 
     private void put(BencodeBytes k, Number n){
