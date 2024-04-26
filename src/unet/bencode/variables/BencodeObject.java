@@ -1,6 +1,5 @@
 package unet.bencode.variables;
 
-import unet.bencode.variables.inter.BencodeObserver;
 import unet.bencode.variables.inter.BencodeType;
 import unet.bencode.variables.inter.BencodeVariable;
 
@@ -8,11 +7,9 @@ import java.util.*;
 
 import static unet.bencode.utils.BencodeUtils.unpackBencode;
 
-public class BencodeObject extends BencodeVariable implements BencodeObserver {
+public class BencodeObject extends BencodeVariable {
 
     private Map<BencodeBytes, BencodeVariable> m;
-    private BencodeObserver o;
-    private int s = 2;
 
     public BencodeObject(){
         type = BencodeType.OBJECT;
@@ -62,7 +59,6 @@ public class BencodeObject extends BencodeVariable implements BencodeObserver {
     private void put(BencodeBytes k, BencodeVariable v){
         int s = (m.containsKey(k)) ? v.byteSize()-m.get(k).byteSize() : k.byteSize()+v.byteSize();
         m.put(k, v);
-        setByteSize(s);
     }
 
     private void put(BencodeBytes k, Number n){
@@ -107,12 +103,10 @@ public class BencodeObject extends BencodeVariable implements BencodeObserver {
 
     public void put(String k, BencodeArray a){
         put(new BencodeBytes(k.getBytes()), a);
-        a.setObserver(this);
     }
 
     public void put(String k, BencodeObject o){
         put(new BencodeBytes(k.getBytes()), o);
-        o.setObserver(this);
     }
 
     public BencodeVariable valueOf(BencodeBytes k){
@@ -194,7 +188,6 @@ public class BencodeObject extends BencodeVariable implements BencodeObserver {
     public void remove(String k){
         BencodeBytes b = new BencodeBytes(k.getBytes());
         if(m.containsKey(b)){
-            setByteSize(-b.byteSize()-m.get(b).byteSize());
             m.remove(b);
         }
     }
@@ -211,25 +204,6 @@ public class BencodeObject extends BencodeVariable implements BencodeObserver {
         return m.size();
     }
 
-    protected void setObserver(BencodeObserver observer){
-        o = observer;
-    }
-
-    private void setByteSize(int s){
-        if(o != null){
-            o.update(s);
-        }
-        this.s += s;
-    }
-
-    @Override
-    public void update(int s){
-        if(o != null){
-            o.update(s);
-        }
-        this.s += s;
-    }
-
     @Override
     public Map<String, ?> getObject(){
         Map<String, Object> h = new HashMap<>();
@@ -241,12 +215,18 @@ public class BencodeObject extends BencodeVariable implements BencodeObserver {
 
     @Override
     public int byteSize(){
+        int s = 2;
+
+        for(BencodeBytes k : m.keySet()){
+            s += k.byteSize()+m.get(k).byteSize();
+        }
+
         return s;
     }
 
     @Override
     public byte[] encode(){
-        byte[] buf = new byte[s];
+        byte[] buf = new byte[byteSize()];
 
         buf[0] = (byte) type.getPrefix();
         int pos = 1;
@@ -271,7 +251,7 @@ public class BencodeObject extends BencodeVariable implements BencodeObserver {
         if(!BencodeType.getTypeByPrefix((char) buf[off]).equals(type)){
             throw new IllegalArgumentException("Byte array is not a bencode object.");
         }
-        int s = off;
+
         off++;
 
         while(buf[off] != type.getSuffix()){
@@ -284,7 +264,6 @@ public class BencodeObject extends BencodeVariable implements BencodeObserver {
 
             m.put(key, value);
         }
-        this.s = (off-s)+1;
     }
 
     @Override
