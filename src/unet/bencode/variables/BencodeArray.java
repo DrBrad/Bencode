@@ -288,17 +288,22 @@ public class BencodeArray extends BencodeVariable {
         StringBuilder b = new StringBuilder("[\r\n");
 
         for(BencodeVariable v : l){
-            if(v instanceof BencodeNumber){
-                b.append("\t\033[0;33m"+v+"\033[0m\r\n");
+            switch(v.getType()){
+                case NUMBER:
+                    b.append("\t\033[0;33m"+v+"\033[0m\r\n");
+                    break;
 
-            }else if(v instanceof BencodeBytes){
-                b.append("\t\033[0;34m"+v+"\033[0m\r\n");
+                case ARRAY:
+                    b.append("\t\033[0m"+v.toString().replaceAll("\\r?\\n", "\r\n\t")+"\r\n");
+                    break;
 
-            }else if(v instanceof BencodeArray){
-                b.append("\t\033[0m"+v.toString().replaceAll("\\r?\\n", "\r\n\t")+"\r\n");
+                case OBJECT:
+                    b.append("\t\033[0m"+v.toString().replaceAll("\\r?\\n", "\r\n\t")+"\r\n");
+                    break;
 
-            }else if(v instanceof BencodeObject){
-                b.append("\t\033[0m"+v.toString().replaceAll("\\r?\\n", "\r\n\t")+"\r\n");
+                case BYTES:
+                    b.append("\t\033[0;34m"+v+"\033[0m\r\n");
+                    break;
             }
         }
 

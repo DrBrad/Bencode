@@ -276,17 +276,22 @@ public class BencodeObject extends BencodeVariable {
         StringBuilder b = new StringBuilder("{\r\n");
 
         for(BencodeBytes o : m.keySet()){
-            if(m.get(o) instanceof BencodeNumber){
-                b.append("\t\033[0;31m"+o+"\033[0m: \033[0;33m"+m.get(o)+"\033[0m\r\n");
+            switch(m.get(o).getType()){
+                case NUMBER:
+                    b.append("\t\033[0;31m"+o+"\033[0m: \033[0;33m"+m.get(o)+"\033[0m\r\n");
+                    break;
 
-            }else if(m.get(o) instanceof BencodeBytes){
-                b.append("\t\033[0;31m"+o+"\033[0m: \033[0;34m"+m.get(o)+"\033[0m\r\n");
+                case ARRAY:
+                    b.append("\t\033[0;32m"+o+"\033[0m: "+m.get(o).toString().replaceAll("\\r?\\n", "\r\n\t")+"\r\n");
+                    break;
 
-            }else if(m.get(o) instanceof BencodeArray){
-                b.append("\t\033[0;32m"+o+"\033[0m: "+m.get(o).toString().replaceAll("\\r?\\n", "\r\n\t")+"\r\n");
+                case OBJECT:
+                    b.append("\t\033[0;32m"+o+"\033[0m: "+m.get(o).toString().replaceAll("\\r?\\n", "\r\n\t")+"\r\n");
+                    break;
 
-            }else if(m.get(o) instanceof BencodeObject){
-                b.append("\t\033[0;32m"+o+"\033[0m: "+m.get(o).toString().replaceAll("\\r?\\n", "\r\n\t")+"\r\n");
+                case BYTES:
+                    b.append("\t\033[0;31m"+o+"\033[0m: \033[0;34m"+m.get(o)+"\033[0m\r\n");
+                    break;
             }
         }
 

@@ -4,6 +4,10 @@ public abstract class BencodeVariable {
 
     protected BencodeType type;
 
+    public BencodeType getType(){
+        return type;
+    }
+
     public abstract Object getObject();
 
     public abstract int byteSize();

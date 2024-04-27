@@ -13,32 +13,25 @@ public class Main {
 
     public static void main(String[] args)throws IOException {
         BencodeObject o = new BencodeObject();
-        o.put("animal", "bark");
-        o.put("cat", "dog");
-        o.put("test", new BencodeObject());
-        o.getBencodeObject("test").put("NEW", "ANOTHER");
-        o.put("test2", 100);
-        o.put("asd", new BencodeArray());
-        o.getBencodeArray("asd").add(1034);
-        o.getBencodeArray("asd").add("BOOP");
-        o.put("test3", 130);
+        o.put("b", "bar");
+        o.put("c", "far");
+        o.put("n", 100);
+        o.put("y",  new byte[]{ 0, 0, 0, 0, 0, 0 });
+
+        o.put("array", new BencodeArray());
+        o.getBencodeArray("array").add("n");
+        o.getBencodeArray("array").add(123.56);
+
+        o.put("object", new BencodeObject());
+        o.getBencodeObject("object").put("z", "another one");
+        o.getBencodeObject("object").put("n", "mutate");
 
         byte[] buf = o.encode();
+        System.out.println("EXPECTED: "+o.byteSize()+" ACTUAL: "+buf.length);
         System.out.println(new String(buf));
-
-        o = new BencodeObject(buf);
         System.out.println(o);
 
-        BencodeNumber n = new BencodeNumber(100.2);
-        buf = n.encode();
-
-        n = new BencodeNumber();
-        n.decode(buf, 0);
-
-        System.out.println(n);
-
-        BencodeReader r = new BencodeReader(new FileInputStream(new File("/home/brad/Downloads/torrent.torrent")));
-        o = (BencodeObject) r.read();
+        o = new BencodeObject(buf);
         System.out.println(o);
     }
 }
